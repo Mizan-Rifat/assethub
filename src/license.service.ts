@@ -1,18 +1,19 @@
-export interface License {
+enum LicenseType {
+  COPYRIGHT = 'copyright',
+  CREATIVE_COMMONS = 'creative_commons',
+  CUSTOM = 'custom'
+}
+
+interface License {
   id: string;
-  assetId: string;
-  licenseType: 'standard' | 'custom';
+  type: LicenseType;
   expirationDate: Date;
+  usageRights: string[];
   platformRestrictions: string[];
-  usagePermissions: string[];
 }
 
-export interface LicenseAssignment {
-  assetId: string;
-  licenses: License[];
-}
-
-export interface LicenseValidationResult {
-  valid: boolean;
-  message: string;
+abstract class LicenseManager {
+  abstract assignLicense(assetId: string, license: License): void;
+  abstract validateLicense(assetId: string): boolean;
+  abstract renewLicense(licenseId: string, newExpirationDate: Date): void;
 }

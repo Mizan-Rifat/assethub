@@ -1,44 +1,60 @@
-interface Asset {
-  id: string;
-  name: string;
-  type: 'audio' | 'video' | 'image' | 'interactive';
-  metadata: Metadata;
-  versionHistory: AssetVersion[];
-  dependencies: string[]; // IDs of dependent assets
-  createdAt: Date;
-  updatedAt: Date;
+enum MediaType {
+  AUDIO = 'audio',
+  VIDEO = 'video',
+  IMAGE = 'image',
+  INTERACTIVE = 'interactive'
 }
 
 interface Metadata {
   title: string;
-  owner: string;
-  dateCreated: Date;
   description: string;
-  properties: AudioMetadata | VideoMetadata | ImageMetadata | InteractiveMetadata;
+  owner: string;
+  createdDate: Date;
+  updatedDate: Date;
 }
 
-interface AudioMetadata {
+interface AudioMetadata extends Metadata {
   bitrate: number;
-  duration: number; // in seconds
+  duration: number;
 }
 
-interface VideoMetadata {
-  resolution: string; // e.g., "1920x1080"
-  duration: number; // in seconds
+interface VideoMetadata extends Metadata {
+  resolution: string;
+  duration: number;
+  frameRate: number;
 }
 
-interface ImageMetadata {
+interface ImageMetadata extends Metadata {
   dpi: number;
-  dimensions: string; // e.g., "1024x768"
+  dimensions: string;
 }
 
-interface InteractiveMetadata {
-  technology: string; // e.g., HTML5, Unity
+interface InteractiveMetadata extends Metadata {
+  technology: string;
 }
 
-interface AssetVersion {
-  versionNumber: number;
-  changes: string;
+interface Dependency {
+  assetId: string;
+  dependencyType: string;
+  createdDate: Date;
+}
+
+interface Asset {
+  id: string;
+  type: MediaType;
+  metadata: Metadata;
   dependencies: string[];
-  createdAt: Date;
+}
+
+abstract class BaseAsset implements Asset {
+  id: string;
+  type: MediaType;
+  metadata: Metadata;
+  dependencies: Dependency[];
+
+  constructor(id: string, type: MediaType, metadata: Metadata, dependencies: string[]) {}
+
+  abstract validateMetadata(): boolean;
+  abstract process(): Promise<void>;
+  abstract archive(): void;
 }
